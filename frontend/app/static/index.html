@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Title goes here</title>
+  <title>Australian Energy Trends</title>
   <script type="text/javascript" src="script/jquery.min.js"></script>
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/style.css">
@@ -12,14 +12,35 @@
   <script type="text/javascript" src="script/d3.min.js"></script>
 </head>
 <body>
+  <div class="top-container">
+    <div class="top-container-inner">    
+      <div class="container">
+      <h1>Australian Energy Trends</h1>
+      <div class="row">
+        <p>Explore the story of Australian Energy. Personalise your experience by providing your postcode below.</p>
+        <div class="form-group">
+          <label for="postcode">Postcode</label>
+          <input id="postcode" type="text" maxlength="4"></input>
+          <button id="personaliseButton" type="button" class="btn btn-default">Submit</button>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
   <div class="container" id="page-body">
-        <h1>Project name here</h1>
+        
         <h2>First chart</h2>
         <svg width="960" height="500" id="first-chart"></svg>
         
         <h2>Solar Hot Water Installations</h2>
-        <svg width="960" height="500" id="solar-hw-chart"></svg>
-        
+        <div class="row">
+          <div class="chart-area" id="solar-hw-chart">
+            <svg width="960" height="500"></svg>
+          </div>
+          <div class="source-link">
+            <span>Source: <a href="https://data.qld.gov.au/dataset/solar-hot-water-rebate/resource/e59e789c-9872-46dd-b385-16126f1e993d">Solar hot water rebate data</a></span>
+          </div>
+        </div>
         <h2>Second chart</h2>
         <svg width="960" height="500" id="second-chart"></svg>
   </div>

@@ -43,7 +43,7 @@ $(document).ready(function() {
 });
 
 function renderLineChart(data) {
-	var svg = d3.select("#first-chart"),
+	var svg = d3.select("#first-chart");
     margin = {top: 20, right: 80, bottom: 30, left: 50},
     width = svg.attr("width") - margin.left - margin.right,
     height = svg.attr("height") - margin.top - margin.bottom,
@@ -128,24 +128,15 @@ function renderLineChart(data) {
 
 function renderBarGraph(data) {
 	
-	var svg = d3.select("#solar-hw-chart"),
+	var svg = d3.select("#solar-hw-chart svg"),
 		margin = {top: 20, right: 20, bottom: 30, left: 40},
 		width = +svg.attr("width") - margin.left - margin.right,
 		height = +svg.attr("height") - margin.top - margin.bottom;
+	$("#solar-hw-chart svg").attr("data-chart", JSON.stringify(data));
 
 	var xScale = d3.scaleBand().rangeRound([0, width]).padding(0.1),
 		yScale = d3.scaleLinear().rangeRound([height, 0]);
 
-	if (!data) {
-	data = [{
-		Postcode: "A",
-		Count: 10
-	}, {
-		Postcode: "B",
-		Count: 15
-	}];
-	}
-	
 	var g = svg.append("g")
     	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	

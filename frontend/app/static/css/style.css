@@ -16,6 +16,24 @@
   user-select: none;
 }
 
+/* Black section up the top */
+.top-container {
+  background: #111;
+  background-image: url("../images/background.jpeg");
+  background-size: 100% 100%;
+  color: white;
+}
+
+.top-container-inner {
+  padding-top: 2%;
+  padding-bottom: 20%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.top-container h1 {
+  padding-bottom: 30%;
+}
+
 /* Line Chart */
 .axis--x path {
   display: none;
@@ -25,6 +43,14 @@
   fill: none;
   stroke: steelblue;
   stroke-width: 1.5px;
+}
+
+.chart-area svg {
+  width: 100%;
+}
+
+.source-link {
+  text-align: right;
 }
 
 /* Bar Graph */
@@ -39,3 +65,4 @@
 .axis--x path {
   display: none;
 }
+
