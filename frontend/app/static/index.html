@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="css/style.css">
   <script type="text/javascript" src="script/bootstrap.min.js"></script>
   <script type="text/javascript" src="script/d3.min.js"></script>
+  <script type="text/javascript" src="script/d3.tip.js"></script>
 </head>
 <body>
   <div class="top-container">
@@ -29,20 +30,22 @@
   </div>
   <div class="container" id="page-body">
         
-        <h2>First chart</h2>
-        <svg width="960" height="500" id="first-chart"></svg>
+    <h2>First chart</h2>
+    <div class="chart-area">
+      <svg width="960" height="500" id="first-chart"></svg>  
+    </div>
         
-        <h2>Solar Hot Water Installations</h2>
-        <div class="row">
-          <div class="chart-area" id="solar-hw-chart">
-            <svg width="960" height="500"></svg>
-          </div>
-          <div class="source-link">
-            <span>Source: <a href="https://data.qld.gov.au/dataset/solar-hot-water-rebate/resource/e59e789c-9872-46dd-b385-16126f1e993d">Solar hot water rebate data</a></span>
-          </div>
-        </div>
-        <h2>Second chart</h2>
-        <svg width="960" height="500" id="second-chart"></svg>
+    <h2>Solar Hot Water Installations</h2>
+    <div class="row">
+      <div class="chart-area" id="solar-hw-chart">
+        <svg height="500"></svg>
+      </div>
+      <div class="source-link">
+        <span>Source: <a href="https://data.qld.gov.au/dataset/solar-hot-water-rebate/resource/e59e789c-9872-46dd-b385-16126f1e993d">Solar hot water rebate data</a></span>
+      </div>
+    </div>
+    <h2>Second chart</h2>
+    <svg width="960" height="500" id="second-chart"></svg>
   </div>
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
   <script type="text/javascript" src="/script/main.js"></script>

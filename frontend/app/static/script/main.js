@@ -38,7 +38,11 @@ $(document).ready(function() {
 		url: "http://ec2-54-79-91-24.ap-southeast-2.compute.amazonaws.com/api/api/energy",
 		context: document.body
 	}).done(function(data) {
-		renderBarGraph(data);
+		setBarGraphData("solar-hw-chart", data);
+	});
+	
+	$(window).resize(function() {		
+		redrawBarGraph("solar-hw-chart")
 	});
 });
 
@@ -126,44 +130,77 @@ function renderLineChart(data) {
 		.text(function(d) { return d.id; });
 }
 
-function renderBarGraph(data) {
-	
-	var svg = d3.select("#solar-hw-chart svg"),
-		margin = {top: 20, right: 20, bottom: 30, left: 40},
-		width = +svg.attr("width") - margin.left - margin.right,
-		height = +svg.attr("height") - margin.top - margin.bottom;
-	$("#solar-hw-chart svg").attr("data-chart", JSON.stringify(data));
+function setBarGraphData(id, data) {
+	var selector = "#" + id;
+	$(selector).data("chart-data", data);
+	redrawBarGraph(id);
+}
 
-	var xScale = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+function redrawBarGraph(id) {
+	var div = $("#" + id);
+	var data = div.data("chart-data");
+	if (!data) {
+		// Data not yet loaded.
+		return;
+	}
+	 
+	var svgSelector = "#" + id + " svg";
+	var svg = d3.select(svgSelector),
+		margin = {top: 20, right: 20, bottom: 30, left: 40},
+		width = +div.innerWidth() - margin.left - margin.right,
+		height = +div.innerHeight() - margin.top - margin.bottom;
+
+	var xScale = d3.scaleBand().rangeRound([0, width]).padding(0.0),
 		yScale = d3.scaleLinear().rangeRound([height, 0]);
 
+	// Clear the data in the chart before we begin		
+	svg.selectAll("*").remove();
+	
 	var g = svg.append("g")
     	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	
-  xScale.domain(data.map(function(d) { return d.Postcode; }));
-  yScale.domain([0, d3.max(data, function(d) { return d.Count; })]);
+	var tip = d3.tip()
+		.attr('class', 'd3-tip')
+		.offset([-10, 0])
+		.html(function(d) {
+		return "<div><strong>Postcode:</strong> <span>" + d.Postcode + "</span><br/>" +
+			"<strong>Count:</strong> " +
+			"<span>" + d.Count + "</span>" +
+			"</div>";
+		});
+	
+	
+	svg.call(tip);
+	
+	xScale.domain(data.map(function(d) { return d.Postcode; }));
+	yScale.domain([0, d3.max(data, function(d) { return d.Count; })]);
 
-  g.append("g")
-      .attr("class", "axis axis--x")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(xScale));
+	g.append("g")
+		.attr("class", "axis axis--x")
+		.attr("transform", "translate(0," + height + ")")
+		.call(d3.axisBottom(xScale));
 
-  g.append("g")
-      .attr("class", "axis axis--y")
-      .call(d3.axisLeft(yScale).ticks(10))
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", "0.71em")
-      .attr("text-anchor", "end")
-      .text("Frequency");
+			
+	g.append("g")
+		.attr("class", "axis axis--y")
+		.call(d3.axisLeft(yScale).ticks(10))
+		.append("text")
+		.attr("transform", "rotate(-90)")
+		.attr("y", 6)
+		.attr("dy", "0.71em")
+		.attr("fill", "#000")
+		.attr("text-anchor", "end")
+		.text("Rebate claims per dwelling");
 
-  g.selectAll(".bar")
-    .data(data)
-    .enter().append("rect")
-      .attr("class", "bar")
-      .attr("x", function(d) { return xScale(d.Postcode); })
-      .attr("y", function(d) { return yScale(d.Count); })
-      .attr("width", xScale.bandwidth())
-      .attr("height", function(d) { return height - yScale(d.Count); });
+	g.selectAll(".bar")
+		.data(data)
+		.enter().append("rect")
+		.attr("class", "bar")
+		.attr("x", function(d) { return xScale(d.Postcode); })
+		.attr("y", function(d) { return yScale(d.Count); })
+		.attr("width", xScale.bandwidth())
+		.attr("height", function(d) { return height - yScale(d.Count); })
+		.on('mouseover', tip.show)
+		.on('mouseout', tip.hide);
 }
+

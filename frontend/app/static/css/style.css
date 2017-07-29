@@ -16,7 +16,7 @@
   user-select: none;
 }
 
-/* Black section up the top */
+/* Darkened image section up the top */
 .top-container {
   background: #111;
   background-image: url("../images/background.jpeg");
@@ -32,6 +32,10 @@
 
 .top-container h1 {
   padding-bottom: 30%;
+}
+
+.top-container input {
+  color: black;
 }
 
 /* Line Chart */
@@ -66,3 +70,35 @@
   display: none;
 }
 
+
+/* Bar graph tooltips */
+
+
+.d3-tip {
+  line-height: 1.5;
+  font-weight: bold;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
