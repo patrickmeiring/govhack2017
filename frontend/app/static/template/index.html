@@ -9,16 +9,22 @@
   <link rel="stylesheet" href="bootstrap.min.css">
   <link rel="stylesheet" href="style.css">
   <script type="text/javascript" src="bootstrap.min.js"></script>
+  <script type="text/javascript" src="d3.min.js"></script>
 </head>
-
 <body>
   <div>
     <label id="title">Project name here</label>
-    <div class="flex-container">
+    <div class="flex-container" id="page-body">
+
+      
+
+
     </div>      
   </div>
-  <script type="text/javascript" src="d3.js"></script>
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
   <script type="text/javascript" src="main.js"></script>
+  <script>
+    createChart("hello world", 1200, 800);
+  </script>
 </body>
 </html>

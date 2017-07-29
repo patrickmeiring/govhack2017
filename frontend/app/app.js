@@ -23,6 +23,7 @@ io.on('connection', function(socket) {
 	socket.on('data_1', function() {
 		socket.emit('data_1', data);
 	});
+	socket.emit('data_1', data);
 });
 
 server.listen(3000, function(socket) {
