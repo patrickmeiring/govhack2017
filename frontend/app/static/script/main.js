@@ -41,7 +41,9 @@ $(document).ready(function() {
 	});
 	
 	$(window).resize(function() {		
-		redrawBarGraph("solar-hw-chart")
+		redrawBarGraph("solar-hw-chart");
+		redrawLineChart("first-chart");
+		redrawLineChart("second-chart");
 	});
 
 	// // this one will fail for now
@@ -51,13 +53,13 @@ $(document).ready(function() {
 	// }).done(function(data) { // change "fail" to "done" once api is ready
 	// 	renderLineChart(data);
 	// });
-	renderLineChart([])
+	setLineChartData("first-chart", [])
+	setLineChartData("second-chart", [])
 });
 
-function renderLineChart(data) {
-
+function setLineChartData(id, data) {
 	// MockData overwriting data
-	var data = [
+	data = [
 	{
 		"state" : "QLD",
 		"values" : [
@@ -108,14 +110,32 @@ function renderLineChart(data) {
 			}
 		]
 	}];
+	
+	var selector = "#" + id;
+	$(selector).data("chart-data", data);
+	redrawLineChart(id);
+}
 
+
+function redrawLineChart(id) {
+	var div = $("#" + id);
+	var data = div.data("chart-data");
+	if (!data) {
+		// Data not yet loaded.
+		return;
+	}
+	
 	var parseDate = d3.timeParse("%Y-%m-%d");
 
-	var svg = d3.select("#first-chart"),
+	var svg = d3.select("#" + id + " svg"),
     margin = {top: 20, right: 80, bottom: 100, left: 50},
-    width = svg.attr("width") - margin.left - margin.right,
-    height = svg.attr("height") - margin.top - margin.bottom,
-    graph = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    width = +div.innerWidth() - margin.left - margin.right,
+    height = +div.innerHeight() - margin.top - margin.bottom;
+	
+	// Clear the data in the chart before we begin		
+	svg.selectAll("*").remove();
+
+    var graph = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	
 	var xScale = d3.scaleTime().range([0, width]),
 		yScale = d3.scaleLinear().range([height, 0]),
