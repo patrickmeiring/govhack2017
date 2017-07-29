@@ -18,11 +18,13 @@ data = [1,2,3,4,5];
  * Processing output sent from Software.
  */
 io.on('connection', function(socket) {
-	console.log('client connected');
-
+	
+	// on data req, send data, this will be replaced with ajax GET in C# backend
 	socket.on('data_1', function() {
 		socket.emit('data_1', data);
 	});
+
+	// also send data once client connects
 	socket.emit('data_1', data);
 });
 
