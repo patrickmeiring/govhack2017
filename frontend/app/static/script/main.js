@@ -33,15 +33,16 @@ function createChart(title, chartWidth, chartHeight) {
 
 
 $(document).ready(function() {
-		renderChart();
+	renderLineChart();
 	$.ajax({
 		url: "http://ec2-54-79-91-24.ap-southeast-2.compute.amazonaws.com/api/api/energy",
 		context: document.body
 	}).done(function(data) {
+		renderBarGraph(data);
 	});
 });
 
-function renderChart(data) {
+function renderLineChart(data) {
 	var svg = d3.select("#first-chart"),
     margin = {top: 20, right: 80, bottom: 30, left: 50},
     width = svg.attr("width") - margin.left - margin.right,
@@ -123,4 +124,55 @@ function renderChart(data) {
 		.attr("dy", "0.35em")
 		.style("font", "10px sans-serif")
 		.text(function(d) { return d.id; });
+}
+
+function renderBarGraph(data) {
+	
+	var svg = d3.select("#solar-hw-chart"),
+		margin = {top: 20, right: 20, bottom: 30, left: 40},
+		width = +svg.attr("width") - margin.left - margin.right,
+		height = +svg.attr("height") - margin.top - margin.bottom;
+
+	var xScale = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+		yScale = d3.scaleLinear().rangeRound([height, 0]);
+
+	if (!data) {
+	data = [{
+		Postcode: "A",
+		Count: 10
+	}, {
+		Postcode: "B",
+		Count: 15
+	}];
+	}
+	
+	var g = svg.append("g")
+    	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
+  xScale.domain(data.map(function(d) { return d.Postcode; }));
+  yScale.domain([0, d3.max(data, function(d) { return d.Count; })]);
+
+  g.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(xScale));
+
+  g.append("g")
+      .attr("class", "axis axis--y")
+      .call(d3.axisLeft(yScale).ticks(10))
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+      .text("Frequency");
+
+  g.selectAll(".bar")
+    .data(data)
+    .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) { return xScale(d.Postcode); })
+      .attr("y", function(d) { return yScale(d.Count); })
+      .attr("width", xScale.bandwidth())
+      .attr("height", function(d) { return height - yScale(d.Count); });
 }

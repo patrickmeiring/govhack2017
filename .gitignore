@@ -3,3 +3,5 @@ EnergyStatisticsAPI/EnergyStatisticsAPI/bin
 EnergyStatisticsAPI/EnergyStatisticsAPI/obj
 EnergyStatisticsAPI/.vs
 frontend/node_modules
+frontend/.vscode/settings.json
+frontend/node_modules/

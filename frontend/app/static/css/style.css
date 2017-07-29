@@ -16,7 +16,7 @@
   user-select: none;
 }
 
-
+/* Line Chart */
 .axis--x path {
   display: none;
 }
@@ -25,4 +25,17 @@
   fill: none;
   stroke: steelblue;
   stroke-width: 1.5px;
+}
+
+/* Bar Graph */
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis--x path {
+  display: none;
 }
