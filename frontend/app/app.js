@@ -4,13 +4,11 @@ let server = require('http').createServer(app);
 let io = require('socket.io').listen(server);
 let path = require('path');
 
-app.use(express.static(__dirname + '/static/template'));
-app.use(express.static(__dirname + '/static/script'));
-app.use(express.static(__dirname + '/static/img'));
+app.use(express.static(__dirname + '/static'));
 
-app.get('/', function(req, res) {
-	res.sendFile('index.html');
-});
+//app.get('/', function(req, res) {
+//	res.sendFile('index.html');
+//});
 
 data = [1,2,3,4,5];
 
