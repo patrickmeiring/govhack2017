@@ -1,0 +1,17 @@
+#title {
+  margin-left: 3vw;
+}
+
+.flex-container {
+  margin-left: 3vw;
+  margin-right: 5vw;
+  display: flex;
+  width: 100vw;
+  min-height: 85vh;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
