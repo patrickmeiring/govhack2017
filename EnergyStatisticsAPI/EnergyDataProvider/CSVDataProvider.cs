@@ -24,5 +24,27 @@ namespace EnergyDataProvider
 				MappedData = csvData.GetRecords<T>().ToList();
 			}
 		}
+
+		public void LoadMultipleFromDirectory(string location, List<string> fileNames)
+		{
+			MappedData = new List<T>();
+
+			if (Directory.Exists(location))
+			{
+				foreach (var file in fileNames)
+				{
+					if (!location.EndsWith("\\"))
+						location += "\\";
+
+					if (File.Exists(location + file))
+					{
+						var csvData = new CsvReader(File.OpenText(location + file));
+						csvData.Configuration.IgnoreReadingExceptions = true;
+						csvData.Configuration.RegisterClassMap<U>();
+						MappedData.AddRange(csvData.GetRecords<T>().ToList());
+					}
+				}			
+			}
+		}
 	}
 }

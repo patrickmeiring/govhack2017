@@ -16,6 +16,9 @@ namespace EnergyStatisticsAPI.Controllers
 	public class EnergyController : ApiController
 	{
 		private static List<SolarHotWaterRegion> SolarHotWaterRegions;
+		private static CSVDataProvider<SolarHotWaterInstallation, SolarHotWaterInstallationMap> SolarHotWaterInstallationsService;
+		private static CSVDataProvider<DwellingsByPostcode, DwellingsByPostcodeMap> DwellingsByPostcodeService;
+		private static CSVDataProvider<AERDebt, AERDebtMap> AERDebtService;
 
 		private string Path(string path)
 		{
@@ -24,13 +27,33 @@ namespace EnergyStatisticsAPI.Controllers
 
 		EnergyController()
 		{
+			SolarHotWaterInstallationsService = new CSVDataProvider<SolarHotWaterInstallation, SolarHotWaterInstallationMap>(Path("solar-hot-water.csv"));
+			DwellingsByPostcodeService = new CSVDataProvider<DwellingsByPostcode, DwellingsByPostcodeMap>(Path("dwellings-by-postcode.csv"));
 			SolarHotWaterRegions = ComputeSolarHotWaterRegions();
+
+			LoadAERData();
+		}
+
+
+
+		private void LoadAERData()
+		{
+			var aerFiles = new List<string>()
+			{
+				"act.csv",
+				"nsw.csv",
+				"qld.csv",
+				"sa.csv",
+				"tas.csv"
+			};
+
+			AERDebtService = new CSVDataProvider<AERDebt, AERDebtMap>();
+			AERDebtService.LoadMultipleFromDirectory(Path("../Content/debt"), aerFiles);
 		}
 
 		private List<SolarHotWaterRegion> ComputeSolarHotWaterRegions()
 		{
-			var SolarHotWaterInstallationsService = new CSVDataProvider<SolarHotWaterInstallation, SolarHotWaterInstallationMap>(Path("solar-hot-water.csv"));
-			var DwellingsByPostcodeService = new CSVDataProvider<DwellingsByPostcode, DwellingsByPostcodeMap>(Path("dwellings-by-postcode.csv"));
+
 			var QldDistricts = new CSVDataProvider<QldDistrict, QldDistrictMap>(Path("qld-districts.csv"));
 
 			var ret = QldDistricts.MappedData.GroupBy(x => x.Region).Select(x => new SolarHotWaterRegion()
@@ -44,15 +67,15 @@ namespace EnergyStatisticsAPI.Controllers
 				Count = group.Count()
 			}).OrderBy(x => x.Postcode).ToList();
 
-			foreach (var district in QldDistricts.MappedData)
+			foreach (var district in QldDistricts.MappedData.GroupBy(x => x.Postcode).ToList())
 			{
-				var region = ret.Find(x => x.Region == district.Region);
+				var region = ret.Find(x => x.Region == district.First().Region);
 
-				var installation = installationsByPostCode.Find(x => x.Postcode == district.Postcode);
+				var installation = installationsByPostCode.Find(x => x.Postcode == district.First().Postcode);
 				if (installation != null)
 					region.Installations += installation.Count;
 
-				var dwelling = DwellingsByPostcodeService.MappedData.Find(x => x.Postcode == district.Postcode);
+				var dwelling = DwellingsByPostcodeService.MappedData.Find(x => x.Postcode == district.First().Postcode);
 				if (dwelling != null)
 					region.Dwellings += dwelling.Dwellings;
 			}
@@ -66,9 +89,26 @@ namespace EnergyStatisticsAPI.Controllers
 		}
 
 		[HttpGet]
-		public List<SolarHotWaterRegion> SolarHotWaterByRegion()
+		public SolarHotWaterPostcode SolarHotWaterByRegion(string postcode)
 		{
-			return SolarHotWaterRegions;
+			var ret = new SolarHotWaterPostcode();
+			ret.Installations = SolarHotWaterInstallationsService.MappedData.Where(x => x.Postcode == postcode).Count();
+
+			if (DwellingsByPostcodeService.MappedData.Find(x => x.Postcode == postcode) != null)
+			{
+				ret.Dwellings = DwellingsByPostcodeService.MappedData.Find(x => x.Postcode == postcode).Dwellings;
+				ret.AverageInstallations = ((double)ret.Installations / (double)ret.Dwellings);
+			}
+
+			ret.Regions = SolarHotWaterRegions;
+
+			return ret;
+		}
+
+		[HttpGet]
+		public List<AERDebt> AERDebt()
+		{
+			return AERDebtService.MappedData;
 		}
 	}
 }
