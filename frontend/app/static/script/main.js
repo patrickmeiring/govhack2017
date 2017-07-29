@@ -33,8 +33,35 @@ function createChart(title, chartWidth, chartHeight) {
 
 
 $(document).ready(function() {
+	configureBarGraph("solar-hw-chart", {
+		valueAttribute: "AverageInstallations",
+		labelAttribute: "Region",
+		yLabel: "Rebate claims per dwelling",
+		tooltipSeries: [{
+			label: "Average claims per dwelling",
+			attribute: "AverageInstallations",
+			numDecimals: 3,
+		}, {
+			label: "Total claims",
+			attribute: "Installations",
+			numDecimals: 0,
+		}, {
+			label: "Total dwellings",
+			attribute: "Dwellings",
+			numDecimals: 0,
+		}]
+	});
+	
+	
+	//http://ec2-54-79-91-24.ap-southeast-2.compute.amazonaws.com/api/api/energy
+	loadData(4001);
+	
+	
+});
+
+function loadData(postcode) {
 	$.ajax({
-		url: "http://ec2-54-79-91-24.ap-southeast-2.compute.amazonaws.com/api/api/energy",
+		url: "http://ec2-54-79-91-24.ap-southeast-2.compute.amazonaws.com/api/energy/SolarHotWaterByRegion",
 		context: document.body
 	}).done(function(data) {
 		setBarGraphData("solar-hw-chart", data);
@@ -55,7 +82,7 @@ $(document).ready(function() {
 	// });
 	setLineChartData("first-chart", [])
 	setLineChartData("second-chart", [])
-});
+}
 
 function setLineChartData(id, data) {
 	// MockData overwriting data
@@ -192,6 +219,11 @@ function redrawLineChart(id) {
 	// 	.text(function(d) { return d.id; });
 }
 
+function configureBarGraph(id, config) {
+	var selector = "#" + id;
+	$(selector).data("chart-config", config);
+}
+
 function setBarGraphData(id, data) {
 	var selector = "#" + id;
 	$(selector).data("chart-data", data);
@@ -201,7 +233,8 @@ function setBarGraphData(id, data) {
 function redrawBarGraph(id) {
 	var div = $("#" + id);
 	var data = div.data("chart-data");
-	if (!data) {
+	var config = div.data("chart-config");
+	if (!data || !config) {
 		// Data not yet loaded.
 		return;
 	}
@@ -212,7 +245,7 @@ function redrawBarGraph(id) {
 		width = +div.innerWidth() - margin.left - margin.right,
 		height = +div.innerHeight() - margin.top - margin.bottom;
 
-	var xScale = d3.scaleBand().rangeRound([0, width]).padding(0.0),
+	var xScale = d3.scaleBand().rangeRound([0, width]).padding(0.1),
 		yScale = d3.scaleLinear().rangeRound([height, 0]);
 
 	// Clear the data in the chart before we begin		
@@ -225,17 +258,40 @@ function redrawBarGraph(id) {
 		.attr('class', 'd3-tip')
 		.offset([-10, 0])
 		.html(function(d) {
-		return "<div><strong>Postcode:</strong> <span>" + d.Postcode + "</span><br/>" +
-			"<strong>Count:</strong> " +
-			"<span>" + d.Count + "</span>" +
-			"</div>";
+			function formatThousandsWithRounding(n, dp){
+				// Cross-browser way of formatting numbers nicely
+				// https://stackoverflow.com/questions/5731193/how-to-format-numbers-using-javascript
+				var w = n.toFixed(dp), k = w|0, b = n < 0 ? 1 : 0,
+				u = Math.abs(w-k), d = (''+u.toFixed(dp)).substr(2, dp),
+				s = ''+k, i = s.length, r = '';
+				while ( (i-=3) > b ) { r = ',' + s.substr(i, 3) + r; }
+				return s.substr(0, i + 3) + r + (d ? '.'+d: '');
+			};
+			
+			var result = "<div>";
+			for (var i = 0; i < config.tooltipSeries.length; i++) {
+				var series = config.tooltipSeries[i];
+				var value = d[series.attribute];
+				if (value !== undefined) {
+					if (i > 0) {
+						result += "<br/>";
+					}
+					if (series.numDecimals !== undefined) {
+						value = formatThousandsWithRounding(value, series.numDecimals);
+					}
+					result += "<strong>" + series.label + ":</strong> ";
+					result += "<span>" + value + "</span>";
+				}
+			}
+			result += "</div>";
+			return result;
 		});
 	
 	
 	svg.call(tip);
 	
-	xScale.domain(data.map(function(d) { return d.Postcode; }));
-	yScale.domain([0, d3.max(data, function(d) { return d.Count; })]);
+	xScale.domain(data.map(function(d) { return d[config.labelAttribute]; }));
+	yScale.domain([0, d3.max(data, function(d) { return d[config.valueAttribute]; })]);
 
 	g.append("g")
 		.attr("class", "axis axis--x")
@@ -252,16 +308,16 @@ function redrawBarGraph(id) {
 		.attr("dy", "0.71em")
 		.attr("fill", "#000")
 		.attr("text-anchor", "end")
-		.text("Rebate claims per dwelling");
+		.text(config.yLabel);
 
 	g.selectAll(".bar")
 		.data(data)
 		.enter().append("rect")
 		.attr("class", "bar")
-		.attr("x", function(d) { return xScale(d.Postcode); })
-		.attr("y", function(d) { return yScale(d.Count); })
+		.attr("x", function(d) { return xScale(d[config.labelAttribute]); })
+		.attr("y", function(d) { return yScale(d[config.valueAttribute]); })
 		.attr("width", xScale.bandwidth())
-		.attr("height", function(d) { return height - yScale(d.Count); })
+		.attr("height", function(d) { return height - yScale(d[config.valueAttribute]); })
 		.on('mouseover', tip.show)
 		.on('mouseout', tip.hide);
 }
