@@ -20,14 +20,15 @@ namespace EnergyDataProvider
 			if (File.Exists(location))
 			{
 				var csvData = new CsvReader(File.OpenText(location));
+				csvData.Configuration.IgnoreReadingExceptions = true;
 				csvData.Configuration.RegisterClassMap<U>();
 				MappedData = csvData.GetRecords<T>().ToList();
 			}
 		}
 
-		public void LoadMultipleFromDirectory(string location, List<string> fileNames)
+		public static List<Tuple<string, CSVDataProvider<T, U>>> LoadMultipleFromDirectory(string location, List<string> fileNames)
 		{
-			MappedData = new List<T>();
+			var ret = new List<Tuple<string, CSVDataProvider<T, U>>>();
 
 			if (Directory.Exists(location))
 			{
@@ -36,15 +37,11 @@ namespace EnergyDataProvider
 					if (!location.EndsWith("\\"))
 						location += "\\";
 
-					if (File.Exists(location + file))
-					{
-						var csvData = new CsvReader(File.OpenText(location + file));
-						csvData.Configuration.IgnoreReadingExceptions = true;
-						csvData.Configuration.RegisterClassMap<U>();
-						MappedData.AddRange(csvData.GetRecords<T>().ToList());
-					}
+					ret.Add(Tuple.Create(file, new CSVDataProvider<T, U>(location + file)));
 				}			
 			}
+
+			return ret;
 		}
 	}
 }

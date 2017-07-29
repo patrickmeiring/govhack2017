@@ -18,7 +18,7 @@ namespace EnergyStatisticsAPI.Controllers
 		private static List<SolarHotWaterRegion> SolarHotWaterRegions;
 		private static CSVDataProvider<SolarHotWaterInstallation, SolarHotWaterInstallationMap> SolarHotWaterInstallationsService;
 		private static CSVDataProvider<DwellingsByPostcode, DwellingsByPostcodeMap> DwellingsByPostcodeService;
-		private static CSVDataProvider<AERDebt, AERDebtMap> AERDebtService;
+		private static List<Tuple<string, CSVDataProvider<AERDebt, AERDebtMap>>> AERDebtService;
 
 		private string Path(string path)
 		{
@@ -47,8 +47,7 @@ namespace EnergyStatisticsAPI.Controllers
 				"tas.csv"
 			};
 
-			AERDebtService = new CSVDataProvider<AERDebt, AERDebtMap>();
-			AERDebtService.LoadMultipleFromDirectory(Path("../Content/debt"), aerFiles);
+			AERDebtService = CSVDataProvider<AERDebt, AERDebtMap>.LoadMultipleFromDirectory(Path("../Content/debt"), aerFiles);
 		}
 
 		private List<SolarHotWaterRegion> ComputeSolarHotWaterRegions()
@@ -106,9 +105,9 @@ namespace EnergyStatisticsAPI.Controllers
 		}
 
 		[HttpGet]
-		public List<AERDebt> AERDebt()
+		public List<Tuple<string, List<AERDebt>>> AERDebt()
 		{
-			return AERDebtService.MappedData;
+			return AERDebtService.Select(x => Tuple.Create(x.Item1, x.Item2.MappedData.ToList())).ToList();
 		}
 	}
 }
